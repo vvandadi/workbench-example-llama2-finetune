@@ -21,43 +21,46 @@ layout:
   storage: gitignore
 environment:
   base:
-    registry: nvcr.io
-    image: nvidia/nemo:24.01.framework
-    build_timestamp: "20231212000523"
-    name: NeMo Framework GA Training Container
-    supported_architectures: []
-    cuda_version: "12.2"
-    description: A training container with CUDA 12.2 and Pytorch 2.1
+    registry: docker.io
+    image: nvidia/cuda:13.0.1-cudnn-devel-ubuntu24.04
+    name: CUDA 13.0.1 + cuDNN (Ubuntu 24.04)
+    cuda_version: "13.0"
+    supported_architectures:
+      - linux/arm64
+      - linux/amd64
+    description: CUDA 13.0 + cuDNN base (Torch/NeMo installed via preBuild.bash)
     entrypoint_script: ""
     labels:
-    - cuda12.2
-    - pytorch2.1
+      - cuda13.0
+      - cudnn
+      - python3
     apps:
-    - name: jupyterlab
-      type: jupyterlab
-      class: webapp
-      start_command: jupyter lab --allow-root --port 8888 --ip 0.0.0.0 --no-browser
-        --NotebookApp.base_url=\$PROXY_PREFIX --NotebookApp.default_url=/lab --NotebookApp.allow_origin='*'
-      health_check_command: '[ \$(echo url=\$(jupyter lab list | head -n 2 | tail
-        -n 1 | cut -f1 -d'' '' | grep -v ''Currently'' | sed "s@/?@/lab?@g") | curl
-        -o /dev/null -s -w ''%{http_code}'' --config -) == ''200'' ]'
-      stop_command: jupyter lab stop 8888
-      user_msg: ""
-      icon_url: ""
-      webapp_options:
-        autolaunch: true
-        port: "8888"
-        proxy:
-          trim_prefix: false
-        url_command: jupyter lab list | head -n 2 | tail -n 1 | cut -f1 -d' ' | grep
-          -v 'Currently'
+      - name: jupyterlab
+        type: jupyterlab
+        class: webapp
+        start_command: >
+          jupyter lab --allow-root --port 8888 --ip 0.0.0.0 --no-browser
+          --NotebookApp.base_url=$PROXY_PREFIX --NotebookApp.default_url=/lab
+          --NotebookApp.allow_origin='*'
+        health_check_command: >
+          [ $(echo url=$(jupyter lab list | head -n 2 | tail -n 1 | cut -f1 -d' ' | grep -v 'Currently' | sed "s@/?@/lab?@g") |
+          curl -o /dev/null -s -w '%{http_code}' --config -) == '200' ]
+        stop_command: jupyter lab stop 8888
+        user_msg: ""
+        icon_url: ""
+        webapp_options:
+          autolaunch: true
+          port: "8888"
+          proxy:
+            trim_prefix: false
+          url_command: jupyter lab list | head -n 2 | tail -n 1 | cut -f1 -d' ' | grep -v 'Currently'
     programming_languages:
-    - python3
+      - python3
     icon_url: ""
     image_version: 1.0.3
     os: linux
     os_distro: ubuntu
-    os_distro_release: "22.04"
+    os_distro_release: "24.04"
     schema_version: v2
     user_info:
       uid: ""
