@@ -74,9 +74,6 @@ environment:
       - git
       - git-lfs
       - vim
-    - name: pip
-      binary_path: /usr/local/bin/pip
-      installed_packages:
     package_manager_environment:
       name: ""
       target: ""
